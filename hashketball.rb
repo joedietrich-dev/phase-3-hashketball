@@ -1,4 +1,4 @@
-# Write your code below game_hash
+require 'pry'
 def game_hash
   {
     home: {
@@ -127,3 +127,76 @@ def game_hash
 end
 
 # Write code here
+def flatten_players
+  game_hash.flat_map {|team, values| values[:players]}
+end
+
+def flatten_teams
+  game_hash.map do |team, values|
+    values[:type] = team
+    values
+  end
+end
+
+def find_player(player_name)
+  flatten_players.find {|player| player[:player_name] == player_name}
+end
+
+def find_team(team_name)
+  flatten_teams.find{|team| team[:team_name] == team_name}
+end
+
+def num_points_scored(player)
+  find_player(player)[:points]
+end
+
+def shoe_size(player)
+  find_player(player)[:shoe]
+end
+
+def team_colors(team_name)
+  find_team(team_name)[:colors]
+end
+
+def team_names
+  flatten_teams.map {|team| team[:team_name]}
+end
+
+def player_numbers(team_name)
+  find_team(team_name)[:players].map{|player| player[:number]}
+end
+
+def player_stats(player)
+  find_player(player)
+end
+
+def find_player_max_stat(search_stat,return_stat)
+  flatten_players.max_by{|player| player[search_stat]}[return_stat]
+end
+
+def big_shoe_rebounds
+  find_player_max_stat(:shoe, :rebounds)
+end
+
+def most_points_scored
+  find_player_max_stat(:points, :player_name)
+end
+
+def winning_team
+  point_sums = game_hash.map do |area, team|
+    [team[:team_name], team[:players].sum {|player| player[:points]}]
+  end
+  if point_sums[0][1] > point_sums[1][1]
+    return point_sums[0][0]
+  else
+    return point_sums[1][0]
+  end
+end
+
+def player_with_longest_name
+  flatten_players.max_by{|player| player[:player_name].length}[:player_name]
+end
+
+def long_name_steals_a_ton?
+  player_with_longest_name == find_player_max_stat(:steals, :player_name)
+end
